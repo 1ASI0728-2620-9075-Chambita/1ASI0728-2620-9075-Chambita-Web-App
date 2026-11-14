@@ -1,0 +1,80 @@
+<div class="stack-lg">
+  <header class="row between">
+    <div class="stack-sm">
+      <h1>{{ 'dashboard.greeting' | t: { name: firstName() } }}</h1>
+      @if (!loading()) {
+        <span class="muted">
+          {{ (stats().proposalsReceived ? 'dashboard.summary' : 'dashboard.summaryEmpty') | t: { count: stats().proposalsReceived } }}
+        </span>
+      }
+    </div>
+    <a routerLink="/projects/new" class="button button--primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      {{ 'nav.publish' | t }}
+    </a>
+  </header>
+
+  <div class="stats">
+    <div class="card stat"><span class="muted small">{{ 'dashboard.openProjects' | t }}</span><b>{{ stats().openProjects }}</b></div>
+    <div class="card stat"><span class="muted small">{{ 'dashboard.activeEngagements' | t }}</span><b>{{ stats().activeEngagements }}</b></div>
+    <div class="card stat"><span class="muted small">{{ 'dashboard.proposalsReceived' | t }}</span><b class="highlight">{{ stats().proposalsReceived }}</b></div>
+  </div>
+
+  <section class="card card--flush" aria-labelledby="my-projects">
+    <div class="row between head">
+      <h2 id="my-projects">{{ 'dashboard.myProjects' | t }}</h2>
+      <div class="filters" role="group" [attr.aria-label]="'dashboard.filterLabel' | t">
+        @for (option of filters; track option) {
+          <button type="button" [attr.aria-pressed]="filter() === option" (click)="filter.set(option)">{{ 'dashboard.filter.' + option | t }}</button>
+        }
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="loading muted">{{ 'common.loading' | t }}</div>
+    } @else if (error()) {
+      <div class="empty" role="alert"><p>{{ error() }}</p><button type="button" class="button button--outline button--small" (click)="load()">{{ 'common.retry' | t }}</button></div>
+    } @else if (!visibleRows().length) {
+      <div class="empty">
+        <p>{{ (rows().length ? 'dashboard.emptyFilter' : 'dashboard.empty') | t }}</p>
+        @if (!rows().length) { <a routerLink="/projects/new" class="button button--primary">{{ 'dashboard.publishFirst' | t }}</a> }
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'dashboard.column.project' | t }}</th>
+              <th scope="col">{{ 'dashboard.column.status' | t }}</th>
+              <th scope="col">{{ 'dashboard.column.student' | t }}</th>
+              <th scope="col">{{ 'dashboard.column.deadline' | t }}</th>
+              <th scope="col"><span class="sr-only">{{ 'dashboard.column.action' | t }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of visibleRows(); track row.project.id) {
+              <tr>
+                <td>
+                  <b>{{ row.project.title }}</b><br>
+                  <span class="muted">{{ 'category.' + row.project.category | t }} · {{ row.project.budget | money }}</span>
+                </td>
+                <td>
+                  <app-status-chip [status]="row.status" [suffix]="row.status === 'OPEN' ? ' · ' + ('dashboard.proposals' | t: { count: row.project.proposalsCount }) : ''" />
+                </td>
+                <td [class.muted]="!row.engagement">{{ row.engagement ? studentNames()[row.engagement.studentId] : ('dashboard.toChoose' | t) }}</td>
+                <td class="muted">{{ (row.engagement?.deadline ?? row.project.deadline) | localDate }}</td>
+                <td class="action">
+                  @if (row.status === 'OPEN') {
+                    <a [routerLink]="['/projects', row.project.id, 'proposals']">{{ 'dashboard.viewProposals' | t }}</a>
+                  } @else if (row.engagement) {
+                    <a [routerLink]="['/engagements', row.engagement.id]">{{ (row.status === 'COMPLETED' ? 'dashboard.viewDetail' : 'dashboard.viewEngagement') | t }}</a>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>
