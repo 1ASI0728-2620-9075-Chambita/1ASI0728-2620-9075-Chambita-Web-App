@@ -1,0 +1,82 @@
+<div class="access">
+  <section class="intro">
+    <app-brand-logo [size]="40" />
+    <div class="stack-lg pitch">
+      <h1>{{ 'access.headline' | t }}</h1>
+      <ul class="benefits">
+        <li>
+          <span class="icon icon--green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>
+          {{ 'access.benefit.verified' | t }}
+        </li>
+        <li>
+          <span class="icon icon--blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          {{ 'access.benefit.payment' | t }}
+        </li>
+        <li>
+          <span class="icon icon--orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3 7 7 .5-5.3 4.7L18.5 22 12 18l-6.5 4 1.8-7.8L2 9.5 9 9z"/></svg></span>
+          {{ 'access.benefit.reputation' | t }}
+        </li>
+      </ul>
+    </div>
+    <a class="portal-link" [href]="portalUrl">{{ 'access.verifyCertificate' | t }}</a>
+  </section>
+
+  <section class="forms">
+    <div class="box end-row"><app-language-switch /></div>
+    <div class="box stack">
+      <nav class="tabs" [attr.aria-label]="'access.tabs' | t">
+        <a routerLink="/sign-in" [class.selected]="mode() === 'sign-in'" [attr.aria-current]="mode() === 'sign-in' ? 'page' : null">{{ 'access.signIn' | t }}</a>
+        <a routerLink="/sign-up" [class.selected]="mode() === 'sign-up'" [attr.aria-current]="mode() === 'sign-up' ? 'page' : null">{{ 'access.signUp' | t }}</a>
+      </nav>
+
+      @if (expired() && mode() === 'sign-in') {
+        <p class="panel panel--blue small" role="status">{{ 'access.expired' | t }}</p>
+      }
+      @if (error()) {
+        <p class="panel panel--red small" role="alert">{{ error() }}</p>
+      }
+
+      @if (mode() === 'sign-in') {
+        <form class="stack" [formGroup]="signInForm" (ngSubmit)="signIn()" novalidate>
+          <h2 class="title">{{ 'access.welcomeBack' | t }}</h2>
+          <label class="field">{{ 'access.email' | t }}
+            <input type="email" formControlName="email" autocomplete="email" [attr.aria-invalid]="invalid('signIn', 'email')">
+            @if (invalid('signIn', 'email')) { <span class="error">{{ 'validation.email' | t }}</span> }
+          </label>
+          <label class="field">{{ 'access.password' | t }}
+            <input type="password" formControlName="password" autocomplete="current-password" [attr.aria-invalid]="invalid('signIn', 'password')">
+            @if (invalid('signIn', 'password')) { <span class="error">{{ 'validation.required' | t }}</span> }
+          </label>
+          <button type="submit" class="button button--primary button--block" [disabled]="submitting()">
+            {{ (submitting() ? 'common.wait' : 'access.signIn') | t }}
+          </button>
+        </form>
+      } @else {
+        <form class="stack" [formGroup]="signUpForm" (ngSubmit)="signUp()" novalidate>
+          <h2 class="title">{{ 'access.createAccount' | t }}</h2>
+          <label class="field">{{ 'access.fullName' | t }}
+            <input type="text" formControlName="fullName" autocomplete="name" [attr.aria-invalid]="invalid('signUp', 'fullName')">
+            @if (invalid('signUp', 'fullName')) { <span class="error">{{ 'validation.required' | t }}</span> }
+          </label>
+          <label class="field">{{ 'access.email' | t }}
+            <input type="email" formControlName="email" autocomplete="email" [attr.aria-invalid]="invalid('signUp', 'email')">
+            @if (invalid('signUp', 'email')) { <span class="error">{{ 'validation.email' | t }}</span> }
+          </label>
+          <label class="field">{{ 'access.password' | t }}
+            <input type="password" formControlName="password" autocomplete="new-password" [attr.aria-invalid]="invalid('signUp', 'password')">
+            <span [class]="invalid('signUp', 'password') ? 'error' : 'hint'">{{ 'validation.passwordLength' | t }}</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" formControlName="acceptTerms">
+            <span>{{ 'access.acceptTerms' | t }} <a [href]="termsUrl()" target="_blank" rel="noopener">{{ 'access.terms' | t }}</a></span>
+          </label>
+          @if (invalid('signUp', 'acceptTerms')) { <span class="form-error">{{ 'validation.terms' | t }}</span> }
+          <button type="submit" class="button button--primary button--block" [disabled]="submitting()">
+            {{ (submitting() ? 'common.wait' : 'access.signUpAction') | t }}
+          </button>
+        </form>
+      }
+      <p class="small muted center">{{ 'access.studentHint' | t }}</p>
+    </div>
+  </section>
+</div>
