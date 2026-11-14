@@ -1,0 +1,101 @@
+@if (loading()) {
+  <div class="loading muted">{{ 'common.loading' | t }}</div>
+} @else if (error()) {
+  <div class="card empty" role="alert">{{ error() }}</div>
+} @else if (profile(); as student) {
+  <div class="stack-lg">
+    <span class="breadcrumb">
+      <a routerLink="/dashboard">{{ 'nav.dashboard' | t }}</a> /
+      @if (project()) { <a [routerLink]="['/projects', project(), 'proposals']">{{ 'proposals.breadcrumb' | t }}</a> / }
+      {{ student.fullName }}
+    </span>
+
+    <section class="card header">
+      <span class="avatar avatar--large" aria-hidden="true">{{ avatar() }}</span>
+      <div class="stack-sm grow">
+        <h1>{{ student.fullName }}</h1>
+        <span class="muted">
+          {{ student.career }}@if (student.cycle) { · {{ 'profile.cycle' | t: { cycle: student.cycle } }}}@if (student.university) { · {{ student.university }}}
+        </span>
+        <span class="row tags">
+          <span class="chip chip--green">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>
+            {{ 'profile.verifiedStudent' | t }}
+          </span>
+          @if (student.newInPlatform) {
+            <span class="chip chip--orange">{{ 'profile.newLong' | t }}</span>
+          } @else {
+            <span class="chip chip--grey">{{ 'profile.ratingLong' | t: { rating: student.ratingAverage ?? 0, count: student.ratingCount } }}</span>
+          }
+        </span>
+      </div>
+      @if (proposalDetail(); as proposal) {
+        <div class="offer stack-sm">
+          <span class="small muted">{{ 'profile.proposal' | t }} <b class="ink">{{ proposal.price | money }} · {{ 'proposals.days' | t: { count: proposal.deliveryDays } }}</b></span>
+          @if (proposal.status === 'PENDING') {
+            <button type="button" class="button button--primary" [disabled]="accepting()" (click)="accept()">{{ (accepting() ? 'proposals.accepting' : 'proposals.accept') | t }}</button>
+          }
+        </div>
+      }
+    </section>
+
+    @if (student.bio) { <p class="card bio">{{ student.bio }}</p> }
+
+    <div class="columns">
+      <section class="card stack main-column" aria-labelledby="portfolio-title">
+        <h2 id="portfolio-title">{{ 'profile.portfolio' | t }}</h2>
+        @if (student.portfolio.length) {
+          <div class="portfolio">
+            @for (item of student.portfolio; track item.id) {
+              <figure>
+                @if (item.imageUrl) {
+                  <img [src]="item.imageUrl" [alt]="item.title" loading="lazy">
+                } @else {
+                  <div class="placeholder" aria-hidden="true">{{ item.title }}</div>
+                }
+                <figcaption>
+                  @if (item.externalUrl) { <a [href]="item.externalUrl" target="_blank" rel="noopener">{{ item.title }}</a> } @else { <b>{{ item.title }}</b> }
+                  @if (item.description) { <span class="muted small">{{ item.description }}</span> }
+                </figcaption>
+              </figure>
+            }
+          </div>
+        } @else {
+          <p class="muted">{{ 'profile.noPortfolio' | t }}</p>
+        }
+        <h2>{{ 'profile.skills' | t }}</h2>
+        <div class="tags">
+          @for (skill of student.skills; track skill) { <span class="tag">{{ skill }}</span> } @empty { <span class="muted">—</span> }
+        </div>
+      </section>
+
+      <aside class="side-column stack">
+        <section class="card stack" aria-labelledby="certificates-title">
+          <h2 id="certificates-title">{{ 'profile.certificatesTitle' | t }}</h2>
+          @for (certificate of certificates(); track certificate.id) {
+            <div class="row certificate">
+              <span class="badge" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9z"/><path d="M8.5 11.5l2.5 2.5 4.5-5"/></svg></span>
+              <span class="stack-sm grow">
+                <b class="small">{{ certificate.projectTitle }}</b>
+                <a class="tiny verify" [href]="certificate.verificationUrl" target="_blank" rel="noopener">{{ 'profile.verifyOnChain' | t }}</a>
+              </span>
+            </div>
+          } @empty {
+            <p class="muted small">{{ 'profile.noCertificates' | t }}</p>
+          }
+        </section>
+        <section class="card stack" aria-labelledby="reviews-title">
+          <h2 id="reviews-title">{{ 'profile.reviews' | t }}</h2>
+          @for (review of clientReviews(); track review.id) {
+            <div class="stack-sm">
+              <b class="small">{{ 'profile.score' | t: { score: review.score } }} · {{ review.createdAt | localDate }}</b>
+              @if (review.comment) { <span class="small quote">“{{ review.comment }}”</span> }
+            </div>
+          } @empty {
+            <p class="muted small">{{ 'profile.noReviews' | t }}</p>
+          }
+        </section>
+      </aside>
+    </div>
+  </div>
+}

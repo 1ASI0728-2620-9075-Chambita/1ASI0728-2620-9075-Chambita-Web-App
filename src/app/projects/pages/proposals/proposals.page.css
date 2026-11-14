@@ -1,0 +1,7 @@
+.list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.proposal { display: flex; flex-direction: column; gap: 14px; }
+.price { align-items: flex-end; text-align: right; }
+.price b { font-size: 20px; }
+.message { margin: 0; font-size: 15px; line-height: 24px; color: var(--soft-text); }
+.tags { gap: 6px; }
+p.panel { margin: 0; }

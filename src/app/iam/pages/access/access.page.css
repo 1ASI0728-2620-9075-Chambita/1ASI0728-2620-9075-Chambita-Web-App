@@ -1,0 +1,27 @@
+.access { min-height: 100vh; display: flex; flex-wrap: wrap; background: #FFFFFF; }
+.intro { flex: 1 1 480px; min-width: 0; padding: 48px 64px; background: var(--orange-soft); display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
+.pitch { max-width: 520px; }
+.pitch h1 { font-size: 40px; line-height: 48px; }
+.benefits { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 16px; font-size: 16px; line-height: 24px; }
+.benefits li { display: flex; gap: 14px; align-items: center; }
+.icon { width: 44px; height: 44px; flex: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.icon--green { background: var(--green-soft); color: var(--green-ink); }
+.icon--blue { background: var(--blue-soft); color: var(--blue-ink); }
+.icon--orange { background: var(--orange-chip); color: var(--orange-ink); }
+.portal-link { align-self: flex-start; color: var(--blue); }
+.forms { flex: 1 1 480px; min-width: 0; padding: 48px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+.box { width: 100%; max-width: 440px; }
+.end-row { display: flex; justify-content: flex-end; }
+.tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.tabs a { height: 48px; display: flex; align-items: center; justify-content: center; border-bottom: 3px solid transparent; color: var(--muted); text-decoration: none; font-size: 15px; }
+.tabs a.selected { border-bottom-color: var(--primary); color: var(--primary); }
+.title { font-size: 26px; line-height: 34px; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 20px; }
+.check input { width: 20px; height: 20px; margin: 0; accent-color: var(--primary); }
+.center { text-align: center; margin: 0; }
+p.panel { margin: 0; }
+@media (max-width: 720px) {
+  .intro { padding: 32px 16px; gap: 24px; }
+  .pitch h1 { font-size: 28px; line-height: 36px; }
+  .forms { padding: 32px 16px; }
+}
