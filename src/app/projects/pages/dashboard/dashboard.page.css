@@ -1,0 +1,6 @@
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 16px; }
+.stat { padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+.stat b { font-size: 28px; line-height: 36px; }
+.stat .highlight { color: var(--primary); }
+.head { padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.action { text-align: right; white-space: nowrap; }

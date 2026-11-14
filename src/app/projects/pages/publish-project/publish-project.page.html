@@ -1,0 +1,76 @@
+<div class="stack-lg">
+  <div class="stack-sm">
+    <span class="breadcrumb"><a routerLink="/dashboard">{{ 'nav.dashboard' | t }}</a> / {{ 'nav.publish' | t }}</span>
+    <h1>{{ 'nav.publish' | t }}</h1>
+  </div>
+
+  <div class="columns">
+    <form class="card stack main-column" [formGroup]="form" (ngSubmit)="publish()" novalidate>
+      @if (submitted() && missingFields().length) {
+        <div class="panel panel--red small" role="alert">
+          <b>{{ 'publish.missing' | t }}</b> {{ missingLabels() }}
+        </div>
+      }
+      @if (error()) { <p class="panel panel--red small" role="alert">{{ error() }}</p> }
+
+      <label class="field">{{ 'publish.field.title' | t }}
+        <input type="text" formControlName="title" maxlength="120" [placeholder]="'publish.placeholder.title' | t" [attr.aria-invalid]="invalid('title')">
+        @if (invalid('title')) { <span class="error">{{ 'validation.required' | t }}</span> }
+      </label>
+
+      <div class="form-grid">
+        <label class="field">{{ 'publish.field.category' | t }}
+          <select formControlName="category" [attr.aria-invalid]="invalid('category')">
+            <option value="" disabled>{{ 'publish.chooseCategory' | t }}</option>
+            @for (category of categories; track category) { <option [value]="category">{{ 'category.' + category | t }}</option> }
+          </select>
+          @if (invalid('category')) { <span class="error">{{ 'validation.required' | t }}</span> }
+        </label>
+        <label class="field">{{ 'publish.field.budget' | t }}
+          <input type="number" inputmode="decimal" min="1" step="0.01" formControlName="budget" [attr.aria-invalid]="invalid('budget')">
+          @if (invalid('budget')) { <span class="error">{{ 'validation.budget' | t }}</span> }
+        </label>
+        <label class="field">{{ 'publish.field.deliveryDays' | t }}
+          <input type="number" inputmode="numeric" min="1" max="180" formControlName="deliveryDays" [attr.aria-invalid]="invalid('deliveryDays')">
+          @if (invalid('deliveryDays')) { <span class="error">{{ 'validation.deliveryDays' | t }}</span> }
+        </label>
+      </div>
+
+      <label class="field">{{ 'publish.field.description' | t }}
+        <textarea rows="4" formControlName="description" maxlength="2000" [placeholder]="'publish.placeholder.description' | t" [attr.aria-invalid]="invalid('description')"></textarea>
+        @if (invalid('description')) { <span class="error">{{ 'validation.required' | t }}</span> }
+      </label>
+
+      <div class="form-grid wide">
+        <div class="field">
+          <label for="deliverables-input">{{ 'publish.field.deliverables' | t }}</label>
+          <app-tag-input inputId="deliverables-input" [(tags)]="deliverables" [placeholder]="'publish.placeholder.deliverable' | t" />
+        </div>
+        <div class="field">
+          <label for="skills-input">{{ 'publish.field.skills' | t }}</label>
+          <app-tag-input inputId="skills-input" [(tags)]="skills" [placeholder]="'publish.placeholder.skill' | t" />
+        </div>
+      </div>
+
+      <div class="row end">
+        <a routerLink="/dashboard" class="button button--ghost">{{ 'common.cancel' | t }}</a>
+        <button type="submit" class="button button--primary" [disabled]="submitting()">{{ (submitting() ? 'common.wait' : 'nav.publish') | t }}</button>
+      </div>
+    </form>
+
+    <aside class="side-column stack">
+      <div class="panel panel--orange stack-sm">
+        <b>{{ 'publish.tips.title' | t }}</b>
+        <ul class="tips">
+          <li>{{ 'publish.tips.deliverables' | t }}</li>
+          <li>{{ 'publish.tips.deadline' | t }}</li>
+          <li>{{ 'publish.tips.skills' | t }}</li>
+        </ul>
+      </div>
+      <div class="panel panel--blue notice">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span>{{ 'publish.free' | t }}</span>
+      </div>
+    </aside>
+  </div>
+</div>
