@@ -1,0 +1,8 @@
+.narrow { max-width: 760px; }
+.card h1 { font-size: 26px; line-height: 34px; }
+.stars { gap: 4px; }
+.star { width: 48px; height: 48px; border: 0; border-radius: 12px; background: transparent; color: var(--input-line); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.star svg { fill: currentColor; }
+.star.on { color: #F79009; }
+.star:hover { background: var(--grey); }
+p.panel { margin: 0; }

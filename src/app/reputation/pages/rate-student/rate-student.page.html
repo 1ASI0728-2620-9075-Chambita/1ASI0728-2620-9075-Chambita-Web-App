@@ -1,0 +1,55 @@
+@if (loading()) {
+  <div class="loading muted">{{ 'common.loading' | t }}</div>
+} @else if (engagement(); as current) {
+  <div class="stack-lg narrow">
+    @if (current.status === 'COMPLETED') {
+      <div class="panel panel--green notice" role="status">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>
+        <span class="stack-sm">
+          <b>{{ (approved() ? 'rating.approved' : 'rating.completed') | t }}</b>
+          <span>{{ 'rating.released' | t: { amount: (current.agreedPrice | money), name: firstName() } }}</span>
+        </span>
+      </div>
+    }
+
+    <section class="card stack" aria-labelledby="rating-title">
+      <div class="row">
+        <span class="avatar" aria-hidden="true">{{ avatar() }}</span>
+        <span class="stack-sm">
+          <h1 id="rating-title">{{ 'rating.title' | t: { name: firstName() } }}</h1>
+          <span class="muted">{{ current.projectTitle }}</span>
+        </span>
+      </div>
+
+      @if (error()) { <p class="panel panel--red small" role="alert">{{ error() }}</p> }
+
+      @if (current.status !== 'COMPLETED') {
+        <p class="panel panel--blue small">{{ 'rating.notCompleted' | t }}</p>
+      } @else {
+        <div class="stars row" role="radiogroup" [attr.aria-label]="'rating.scale' | t" (keydown)="onKey($event)">
+          @for (star of stars; track star) {
+            <button type="button" role="radio" class="star" [class.on]="star <= score()" [attr.aria-checked]="star === score()"
+                    [attr.tabindex]="star === (score() || 1) ? 0 : -1" [attr.aria-label]="'rating.star' | t: { count: star }" (click)="score.set(star)">
+              <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 7 7 .5-5.3 4.7L18.5 22 12 18l-6.5 4 1.8-7.8L2 9.5 9 9z"/></svg>
+            </button>
+          }
+          @if (score()) { <span class="small"><b>{{ 'rating.value' | t: { score: score() } }}</b> · {{ 'rating.label.' + score() | t }}</span> }
+        </div>
+        @if (attempted() && !score()) { <span class="form-error">{{ 'rating.required' | t }}</span> }
+
+        <label class="field">{{ 'rating.comment' | t }}
+          <textarea rows="4" maxlength="600" [value]="comment()" (input)="comment.set($any($event.target).value)"></textarea>
+        </label>
+
+        <p class="panel panel--blue small notice">{{ 'rating.certificate' | t: { name: firstName() } }}</p>
+
+        <div class="row end">
+          <a routerLink="/dashboard" class="button button--ghost">{{ 'rating.later' | t }}</a>
+          <button type="button" class="button button--primary" [disabled]="sending()" (click)="send()">{{ (sending() ? 'common.wait' : 'rating.send') | t }}</button>
+        </div>
+      }
+    </section>
+  </div>
+} @else {
+  <div class="card empty" role="alert">{{ error() }}</div>
+}

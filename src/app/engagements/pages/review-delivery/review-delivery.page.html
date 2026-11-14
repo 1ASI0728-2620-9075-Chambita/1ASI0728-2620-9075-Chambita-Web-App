@@ -1,0 +1,54 @@
+@if (loading()) {
+  <div class="loading muted">{{ 'common.loading' | t }}</div>
+} @else if (error()) {
+  <div class="card empty" role="alert">{{ error() }}</div>
+} @else if (engagement(); as current) {
+  <div class="stack-lg">
+    <div class="stack-sm">
+      <span class="breadcrumb">
+        <a routerLink="/engagements">{{ 'nav.engagements' | t }}</a> /
+        <a [routerLink]="['/engagements', current.id]">{{ current.projectTitle }}</a> / {{ 'review.breadcrumb' | t }}
+      </span>
+      <h1>{{ 'review.title' | t: { name: firstName() } }}</h1>
+    </div>
+
+    <ol class="steps" [attr.aria-label]="'engagement.progress' | t">
+      <li class="done">{{ 'engagement.step.paid' | t }}</li>
+      <li class="done">{{ 'engagement.step.inProgress' | t }}</li>
+      <li aria-current="step">{{ 'engagement.step.inReview' | t }}</li>
+      <li>{{ 'engagement.step.completed' | t }}</li>
+    </ol>
+
+    <div class="columns">
+      <section class="card stack main-column" aria-labelledby="delivery-title">
+        <h2 id="delivery-title">{{ 'review.final' | t }}</h2>
+        @if (deliverable(); as delivery) {
+          <div class="file row">
+            <span class="icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+            <span class="stack-sm grow">
+              <b>{{ delivery.fileUrl ? ('engagement.file' | t) : ('review.link' | t) }}</b>
+              <span class="muted small">{{ 'review.submitted' | t }} {{ delivery.submittedAt | localDate }}</span>
+            </span>
+            @if (delivery.fileUrl) { <a class="button button--outline button--small" [href]="delivery.fileUrl" target="_blank" rel="noopener">{{ 'review.download' | t }}</a> }
+            @if (delivery.linkUrl) { <a class="button button--outline button--small" [href]="delivery.linkUrl" target="_blank" rel="noopener">{{ 'review.open' | t }}</a> }
+          </div>
+          @if (delivery.note) {
+            <div class="stack-sm">
+              <b class="small">{{ 'review.comment' | t: { name: firstName() } }}</b>
+              <span class="quote">“{{ delivery.note }}”</span>
+            </div>
+          }
+          <p class="panel panel--orange small">{{ 'review.autoApproval' | t: { date: (autoApproval() | localDate) } }}</p>
+        }
+      </section>
+
+      <section class="card stack side-column" aria-labelledby="decision-title">
+        <h2 id="decision-title">{{ 'review.decision' | t }}</h2>
+        <p class="panel panel--green small">{{ 'review.release' | t: { amount: (current.agreedPrice | money), name: firstName() } }}</p>
+        <button type="button" class="button button--primary button--block" [disabled]="approving()" (click)="approve()">
+          {{ (approving() ? 'review.approving' : 'review.approve') | t }}
+        </button>
+      </section>
+    </div>
+  </div>
+}
