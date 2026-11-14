@@ -1,0 +1,62 @@
+<div class="stack-lg">
+  <div class="stack-sm">
+    <span class="breadcrumb"><a routerLink="/dashboard">{{ 'nav.dashboard' | t }}</a> / {{ project()?.title }}</span>
+    <h1>{{ 'proposals.title' | t: { count: proposals().length } }}</h1>
+    @if (project(); as current) {
+      <span class="muted">{{ 'category.' + current.category | t }} · {{ 'proposals.budget' | t }} {{ current.budget | money }} · {{ 'proposals.deadline' | t }} {{ current.deadline | localDate }}</span>
+    }
+  </div>
+
+  @if (project() && !isOpen()) {
+    <p class="panel panel--blue small">{{ 'proposals.closed' | t }}</p>
+  } @else {
+    <p class="panel panel--blue small notice">{{ 'proposals.acceptNotice' | t }}</p>
+  }
+
+  @if (loading()) {
+    <div class="loading muted">{{ 'common.loading' | t }}</div>
+  } @else if (error()) {
+    <div class="card empty" role="alert"><p>{{ error() }}</p><button type="button" class="button button--outline button--small" (click)="load()">{{ 'common.retry' | t }}</button></div>
+  } @else if (!proposals().length) {
+    <div class="card empty">{{ 'proposals.empty' | t }}</div>
+  } @else {
+    <ul class="list">
+      @for (proposal of proposals(); track proposal.id) {
+        <li class="card proposal">
+          <div class="row">
+            <span class="avatar" aria-hidden="true">{{ initials(proposal.student.fullName) }}</span>
+            <span class="stack-sm grow">
+              <b>{{ proposal.student.fullName }}</b>
+              <span class="muted small">{{ proposal.student.career }}@if (proposal.student.cycle) { · {{ 'profile.cycle' | t: { cycle: proposal.student.cycle } }}}</span>
+              <span class="row tags">
+                <span class="chip chip--green">{{ 'profile.verified' | t }}</span>
+                @if (proposal.student.newInPlatform) {
+                  <span class="chip chip--grey">{{ 'profile.new' | t }}</span>
+                } @else {
+                  <span class="chip chip--grey">{{ 'profile.rating' | t: { rating: proposal.student.ratingAverage ?? 0, count: proposal.student.ratingCount } }}</span>
+                }
+                @if (proposal.student.certificateCount) {
+                  <span class="chip chip--blue">{{ 'profile.certificates' | t: { count: proposal.student.certificateCount } }}</span>
+                }
+              </span>
+            </span>
+            <span class="price stack-sm">
+              <b>{{ proposal.price | money }}</b>
+              <span class="muted small">{{ 'proposals.days' | t: { count: proposal.deliveryDays } }}</span>
+            </span>
+          </div>
+          <p class="message">“{{ proposal.message }}”</p>
+          <div class="row end">
+            @if (proposal.status !== 'PENDING') { <app-status-chip [status]="proposal.status" /> }
+            <a class="button button--outline button--small" [routerLink]="['/students', proposal.studentId]" [queryParams]="{ project: projectId(), proposal: proposal.id }">{{ 'proposals.viewProfile' | t }}</a>
+            @if (isOpen() && proposal.status === 'PENDING') {
+              <button type="button" class="button button--primary button--small" [disabled]="accepting() !== null" (click)="accept(proposal)">
+                {{ (accepting() === proposal.id ? 'proposals.accepting' : 'proposals.accept') | t }}
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>
