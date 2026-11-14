@@ -1,0 +1,90 @@
+@if (loading()) {
+  <div class="loading muted">{{ 'common.loading' | t }}</div>
+} @else if (error()) {
+  <div class="card empty" role="alert">{{ error() }}</div>
+} @else if (engagement(); as current) {
+  <div class="stack-lg">
+    <div class="stack-sm">
+      <span class="breadcrumb"><a routerLink="/engagements">{{ 'nav.engagements' | t }}</a> / {{ current.projectTitle }}</span>
+      <div class="row"><h1>{{ current.projectTitle }}</h1><app-status-chip [status]="current.status" /></div>
+      <span class="muted">
+        {{ 'engagement.with' | t: { name: studentName() } }} ·
+        @if (current.status === 'ACTIVE') { {{ (daysLeft() >= 0 ? 'engagement.daysLeft' : 'engagement.overdue') | t: { count: daysLeft() } }} }
+        @else { {{ 'engagement.deadline' | t }} {{ current.deadline | localDate }} }
+      </span>
+    </div>
+
+    @if (current.status !== 'CANCELLED' && current.status !== 'PENDING_PAYMENT') {
+      <ol class="steps" [attr.aria-label]="'engagement.progress' | t">
+        @for (name of steps; track name; let index = $index) {
+          <li [class.done]="stepState(index) === 'done'" [attr.aria-current]="stepState(index) === 'current' ? 'step' : null">{{ 'engagement.step.' + name | t }}</li>
+        }
+      </ol>
+    }
+
+    <div class="columns">
+      <div class="main-column stack">
+        @switch (current.status) {
+          @case ('PENDING_PAYMENT') {
+            <div class="panel panel--orange row between">
+              <span>{{ 'engagement.pendingPayment' | t }}</span>
+              <a class="button button--primary" [routerLink]="['/engagements', current.id, 'payment']">{{ 'engagement.goToPayment' | t }}</a>
+            </div>
+          }
+          @case ('CANCELLED') {
+            <p class="panel panel--red">{{ 'engagement.cancelled' | t }}</p>
+          }
+          @case ('IN_REVIEW') {
+            <div class="panel panel--blue row between">
+              <span>{{ 'engagement.inReview' | t: { name: firstName() } }}</span>
+              <a class="button button--primary" [routerLink]="['/engagements', current.id, 'review']">{{ 'engagement.reviewDelivery' | t }}</a>
+            </div>
+          }
+          @case ('COMPLETED') {
+            <div class="panel panel--green row between">
+              <span>{{ (rated() ? 'engagement.completedRated' : 'engagement.completed') | t: { name: firstName() } }}</span>
+              @if (!rated()) { <a class="button button--primary" [routerLink]="['/engagements', current.id, 'rating']">{{ 'engagement.rate' | t: { name: firstName() } }}</a> }
+            </div>
+          }
+        }
+
+        @if (payment(); as paid) {
+          @if (paid.status === 'HELD' || paid.status === 'RELEASED') {
+            <div class="card row held">
+              <span class="lock" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+              <span class="stack-sm">
+                <b>{{ (paid.status === 'HELD' ? 'engagement.held' : 'engagement.released') | t: { amount: (paid.studentPayout | money) } }}</b>
+                <span class="muted small">{{ (paid.status === 'HELD' ? 'engagement.heldHint' : 'engagement.releasedHint') | t: { name: firstName() } }}</span>
+              </span>
+            </div>
+          }
+        }
+
+        <section class="card stack" aria-labelledby="deliveries-title">
+          <h2 id="deliveries-title">{{ 'engagement.deliveries' | t }}</h2>
+          @for (deliverable of deliverables(); track deliverable.id) {
+            <div class="delivery">
+              <span class="dot" aria-hidden="true"></span>
+              <span class="stack-sm grow">
+                <b>{{ deliverable.note || ('engagement.delivery' | t) }}</b>
+                <span class="muted small">{{ deliverable.submittedAt | localDate }} · <app-status-chip [status]="deliverable.status === 'APPROVED' ? 'APPROVED' : 'IN_REVIEW'" /></span>
+                @if (deliverable.fileUrl) { <a class="small" [href]="deliverable.fileUrl" target="_blank" rel="noopener">{{ 'engagement.file' | t }}</a> }
+                @if (deliverable.linkUrl) { <a class="small" [href]="deliverable.linkUrl" target="_blank" rel="noopener">{{ deliverable.linkUrl }}</a> }
+              </span>
+            </div>
+          } @empty {
+            <p class="muted">{{ (current.status === 'ACTIVE' ? 'engagement.noDeliveriesYet' : 'engagement.noDeliveries') | t: { name: firstName() } }}</p>
+          }
+        </section>
+      </div>
+
+      <aside class="side-column card stack-sm">
+        <h2>{{ 'engagement.agreement' | t }}</h2>
+        <span class="muted small">{{ 'engagement.price' | t }}</span><b>{{ current.agreedPrice | money }}</b>
+        <span class="muted small">{{ 'engagement.term' | t }}</span><b>{{ 'proposals.days' | t: { count: current.deliveryDays } }}</b>
+        <span class="muted small">{{ 'engagement.deadline' | t }}</span><b>{{ current.deadline | localDate }}</b>
+        <a [routerLink]="['/students', current.studentId]" class="small profile-link">{{ 'engagement.viewStudent' | t }}</a>
+      </aside>
+    </div>
+  </div>
+}
