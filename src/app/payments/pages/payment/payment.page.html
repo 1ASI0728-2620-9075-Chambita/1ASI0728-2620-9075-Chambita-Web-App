@@ -1,0 +1,49 @@
+<div class="stack-lg">
+  <div class="stack-sm">
+    <span class="breadcrumb"><a routerLink="/engagements">{{ 'nav.engagements' | t }}</a> / {{ 'payment.title' | t }}</span>
+    <div class="row">
+      <h1>{{ 'payment.title' | t }}</h1>
+      @if (payment()) { <app-status-chip status="PENDING_PAYMENT" /> }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading muted">{{ 'common.loading' | t }}</div>
+  } @else if (error()) {
+    <div class="card empty" role="alert">{{ error() }}</div>
+  } @else if (engagement() && payment()) {
+    <div class="columns">
+      <section class="card stack main-column" aria-labelledby="summary-title">
+        <h2 id="summary-title">{{ 'payment.summary' | t }}</h2>
+        <div class="row">
+          <span class="avatar" aria-hidden="true">{{ avatar() }}</span>
+          <span class="stack-sm">
+            <b>{{ engagement()!.projectTitle }}</b>
+            <span class="muted small">{{ studentName() }} · {{ 'proposals.days' | t: { count: engagement()!.deliveryDays } }}</span>
+          </span>
+        </div>
+        <dl class="amounts">
+          <div><dt>{{ 'payment.agreedPrice' | t }}</dt><dd>{{ payment()!.amount | money }}</dd></div>
+          <div><dt>{{ 'payment.fee' | t: { rate: fee() } }}</dt><dd>{{ payment()!.serviceFee | money }}</dd></div>
+          <div class="total"><dt>{{ 'payment.total' | t }}</dt><dd>{{ payment()!.totalCharged | money }}</dd></div>
+        </dl>
+        <span class="muted small">{{ 'payment.payout' | t: { name: firstName() } }}</span>
+      </section>
+
+      <section class="card stack side-column" aria-labelledby="how-title">
+        <h2 id="how-title">{{ 'payment.how' | t }}</h2>
+        <ol class="how">
+          <li><span class="number">1</span>{{ 'payment.how.1' | t }}</li>
+          <li><span class="number">2</span>{{ 'payment.how.2' | t: { name: firstName() } }}</li>
+          <li><span class="number">3</span>{{ 'payment.how.3' | t }}</li>
+        </ol>
+        <p class="panel panel--blue small">{{ 'payment.simulated' | t }}</p>
+      </section>
+    </div>
+
+    <div class="row end">
+      <button type="button" class="button button--ghost" [disabled]="busy()" (click)="cancel()">{{ 'payment.cancel.action' | t }}</button>
+      <button type="button" class="button button--primary" [disabled]="busy()" (click)="confirm()">{{ (busy() ? 'common.wait' : 'payment.confirm') | t }}</button>
+    </div>
+  }
+</div>
